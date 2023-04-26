@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="Mover" Id="{461a92b9-026e-4cbb-aa50-b18297f25ecc}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'reflection'}
 {attribute 'hide_all_locals'}
@@ -77,6 +77,7 @@ VAR
 	fbReadM1DetectValid		: ADSREAD;
 	fbReadM1DetectActive	: ADSREAD;
 	fbWriteM1Detect			: ADSWRITE;
+	fbDelayM1Timer			: TON;
 	IdDetectionMode			: DINT;			// 0: Standard 1: Mover1
 	IsIdDetectionValid		: BOOL;			// M1 Detection has completed
 	IsIdDetectionActive		: BOOL;			// M1 Detection currently underway
@@ -299,7 +300,21 @@ CASE internalState OF
 		fbWriteM1Detect.IDXOFFS			:= 16#03080250;
 		fbWriteM1Detect.WRITE			:= TRUE;
 		
-		internalState	:= MV_M1_READSTATUS;	// go back to Read M1 Detect status to confirm it has completed
+		internalState	:= MV_M1_DELAY;	// go back to Read M1 Detect status to confirm it has completed
+		
+	MV_M1_DELAY:	// ------------------------------------------------------ delay to allow M1 Detect Completion
+	
+		Ready	:= FALSE;
+		Busy	:= TRUE;
+		Error	:= FALSE;
+		ErrorID	:= 0;
+		
+		fbDelayM1Timer( IN := TRUE, PT := T#500MS );
+		
+		IF fbDelayM1Timer.Q THEN
+			fbDelayM1Timer( IN := FALSE );
+			internalState	:= MV_M1_READSTATUS;
+		END_IF
 			
 	MV_ENABLING: // ------------------------------------------------------- axis is enabling
 	
@@ -1531,5 +1546,112 @@ SyncToMover		:= THIS^;
 ]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="Mover">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.CurrentDestinationPosition.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.CurrentMoveType.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.CurrentObjective.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.Cyclic">
+      <LineId Id="3" Count="141" />
+      <LineId Id="465" Count="11" />
+      <LineId Id="478" Count="0" />
+      <LineId Id="477" Count="0" />
+      <LineId Id="145" Count="315" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.Disable">
+      <LineId Id="3" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.Enable">
+      <LineId Id="3" Count="14" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.GroupStop">
+      <LineId Id="3" Count="30" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.Halt">
+      <LineId Id="3" Count="41" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.IsSyncedToAxis.Get">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.IsSyncedToMover.Get">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.LogUserEvent">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.MasterMover.Get">
+      <LineId Id="3" Count="5" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.MoveToPosition">
+      <LineId Id="3" Count="65" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.MoveToStation">
+      <LineId Id="3" Count="70" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.MoveVelocity">
+      <LineId Id="3" Count="72" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.Payload.Get">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.Payload.Set">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.ReissueCommand">
+      <LineId Id="3" Count="18" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.SetAcceleration">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.SetDeceleration">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.SetDirection">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.SetJerk">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.SetVelocity">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.SyncToAxis">
+      <LineId Id="3" Count="87" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Mover.SyncToMover">
+      <LineId Id="3" Count="88" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>
